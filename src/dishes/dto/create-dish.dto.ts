@@ -1,6 +1,11 @@
+/* eslint-disable prettier/prettier */
 export class CreateDishDto {
   name: string;
+  description?: string;
   price: number;
-  description: string;
+  preparationTime: number;
+  ingredients: string[];
+  gallery: string[];
   restaurantId: number;
+  rating?: number; // Opcional, ya que tiene un valor predeterminado en la base de datos
 }

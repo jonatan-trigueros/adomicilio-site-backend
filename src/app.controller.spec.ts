@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import { Test, TestingModule } from '@nestjs/testing';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -15,8 +16,8 @@ describe('AppController', () => {
   });
 
   describe('root', () => {
-    it('should return "Hello World!"', () => {
-      expect(appController.getHello()).toBe('Hello World!');
+    it('should return "Backend de Adomicilio.site!, solo personal autorizado debe ingresar 👮🏾👮🏾👮🏾🚨🚨🚔🚔🚔"', () => {
+      expect(appController.getHello()).toBe('Backend de Adomicilio.site!, solo personal autorizado debe ingresar 👮🏾👮🏾👮🏾🚨🚨🚔🚔🚔');
     });
   });
 });

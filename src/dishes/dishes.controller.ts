@@ -14,6 +14,6 @@ export class DishesController {
 
   @Post()
   createDish(@Body() data: Prisma.DishCreateInput) {
-    return this.dishesService.createDish (data);
+    return this.dishesService.createDish(data);
   }
 }

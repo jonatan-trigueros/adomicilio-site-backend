@@ -1,8 +1,14 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
+//esquema de objetos postgresql prisma, este esquema incluye los modelos necesarios que la base de datos utilizara. 
 
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+//Los modelos de usuarios son: usuario, establecimiento, repartidor, mandaditos
+
+// El modelo de usuario es para personas que se registran  y usan su cuenta para pedir adomicilio, interactuar con otros usuarios, realizar reservaciones, dejar reseñas etc
+
+//El modelo de establecimiento es para todos los negocios, restaurantes, puestos de comida de la calle, puestos de comida ambulantes, tiendas, supermercados y todo establecimiento que ofrezca servicios, bienes, comida, y demás.
+
+//El modelo de repartidor es para las personas que se crean una cuenta y funcionan como repartidores independientes, personas que utilizan la app para generar ingresos, estos usuarios tendran reseñas dejadas por usuarios normales, estos usuarios tendran una puntuación dentro de la app, estos usuarios pueden afiliarse a un establecimiento, estos usuarios pueden  elegir su horario laboral
+
+// El modelo de mandaditos es para los servicios de mandaditos actuales que quieran afiliarse a la app, funcionaran igual que el usuario de repartidor pero con la diferencia que tendran su identidad en la app como el servicio de mandaditos que son, tendran siempre una puntuación, recibiran reseñas y pueden o no tomar pedidos, pueden afiliarse a establecimientos y en su mayoria seran como el perfil de repartidor.
 
 generator client {
   provider = "prisma-client-js"
@@ -14,37 +20,89 @@ datasource db {
 }
 
 model User {
-  id       Int     @id @default(autoincrement())
-  email    String  @unique
-  name     String?
-  password String
-  orders   Order[] // Relación con pedidos
+  id          Int          @id @default(autoincrement())
+  email       String       @unique
+  username    String       @unique
+  name        String?
+  password    String
+  profilePic  String?
+  bio         String?
+  favoriteFood String?
+  badges      String[]     // Medallas del usuario
+  favorites   Favorite[]
+  orders      Order[]
+  reservations Reservation[]
+  reviews     Review[]
+  deliveryPerson DeliveryPerson? // Relación con DeliveryPerson
+  createdAt   DateTime @default(now())
+  isActive    Boolean  @default(true)
+  role        String   @default("user")
 }
 
 model Restaurant {
-  id          Int      @id @default(autoincrement())
-  name        String
-  description String?
-  menu        Dish[]   // Relación con platillos
-}
+  id              Int          @id @default(autoincrement())
+  name            String
+  email           String       @unique
+  password        String
+  description     String?
+  coverPhoto      String?
+  breadcrumb      String?
+  avgCostPerPerson Float
+  rating          Float        @default(0.0)
+  hasDelivery     Boolean
+  cuisine         String[]     // Categorías de cocina
+  popularDishes   Dish[]       @relation(name: "PopularDishes")
+  menu            Dish[]       // Relación con platillos
+  reviews         Review[]     // Módulo de reseñas
+  orders          Order[]
+  reservations    Reservation[]
+  favorites       Favorite[]
+  deliveryPersons DeliveryPerson[]
+  errandServices  ErrandService[] // Relación con ErrandService
+  createdAt   DateTime @default(now())
+  isActive    Boolean  @default(true)
+  role        String   @default("restaurant")
 
-model Order {
-  id       Int     @id @default(autoincrement())
-  userId   Int
-  user     User    @relation(fields: [userId], references: [id])
-  dishes   OrderDish[]  
-  total    Float
-  status   String  @default("pending")
 }
 
 model Dish {
-  id          Int      @id @default(autoincrement())
-  name        String
-  description String?
-  price       Float
-  restaurant  Restaurant @relation(fields: [restaurantId], references: [id])
-  restaurantId Int
-  orders      OrderDish[]  
+  id             Int          @id @default(autoincrement())
+  name           String
+  description    String?
+  price          Float
+  preparationTime Int
+  rating         Float        @default(0.0)
+  ingredients    String[]
+  gallery        String[]
+  restaurant     Restaurant   @relation(fields: [restaurantId], references: [id])
+  restaurantId   Int
+  orders         OrderDish[]
+  reviews        Review[]
+  popularIn      Restaurant[] @relation(name: "PopularDishes")
+  favorites      Favorite[]
+  createdAt   DateTime @default(now())
+  isActive    Boolean  @default(true)
+}
+
+model Order {
+  id            Int          @id @default(autoincrement())
+  orderNumber   Int
+  userId        Int
+  user          User         @relation(fields: [userId], references: [id])
+  restaurantId  Int
+  restaurant    Restaurant   @relation(fields: [restaurantId], references: [id])
+  deliveryPersonId Int?
+  deliveryPerson DeliveryPerson? @relation(fields: [deliveryPersonId], references: [id])
+  errandServiceId Int?
+  errandService   ErrandService? @relation(fields: [errandServiceId], references: [id])
+  dishes        OrderDish[]  
+  paymentMethod String
+  address       String
+  status        String        @default("pending")
+  subtotal      Float
+  discountCoupon String?
+  total         Float
+  createdAt     DateTime      @default(now())
 }
 
 model OrderDish {
@@ -56,4 +114,84 @@ model OrderDish {
   @@id([orderId, dishId]) 
 }
 
+model Review {
+  id          Int          @id @default(autoincrement())
+  userId      Int
+  user        User         @relation(fields: [userId], references: [id])
+  restaurantId Int?
+  restaurant  Restaurant?  @relation(fields: [restaurantId], references: [id])
+  dishId      Int?
+  dish        Dish?        @relation(fields: [dishId], references: [id])
+  deliveryPersonId Int?
+  deliveryPerson DeliveryPerson? @relation(fields: [deliveryPersonId], references: [id])
+  errandServiceId Int?
+  errandService ErrandService? @relation(fields: [errandServiceId], references: [id])
+  rating      Float        @default(0.0)
+  comment     String?
+  tags        String[]     // Lista de etiquetas personalizadas 
+  createdAt   DateTime     @default(now())
+}
 
+model Reservation {
+  id              Int          @id @default(autoincrement())
+  userId          Int          @unique
+  user            User         @relation(fields: [userId], references: [id])
+  restaurantId    Int
+  restaurant      Restaurant   @relation(fields: [restaurantId], references: [id])
+  title           String
+  time            DateTime
+  table           String?
+  peopleCount     Int
+  area            String?      // Interior, terraza, etc.
+  specialRequests String?
+  guests          String[]     // Lista de invitados
+  createdAt   DateTime @default(now())
+  isActive    Boolean  @default(true)
+}
+
+model Favorite {
+  id          Int          @id @default(autoincrement())
+  userId      Int
+  user        User         @relation(fields: [userId], references: [id])
+  restaurantId Int?
+  restaurant  Restaurant?  @relation(fields: [restaurantId], references: [id])
+  dishId      Int?
+  dish        Dish?        @relation(fields: [dishId], references: [id])
+  
+  @@unique([userId, restaurantId, dishId])
+}
+
+model DeliveryPerson {
+  id              Int          @id @default(autoincrement())
+  userId          Int          @unique
+  user            User         @relation(fields: [userId], references: [id]) 
+  affiliatedTo    Restaurant?  @relation(fields: [restaurantId], references: [id])
+  restaurantId    Int?
+  name            String
+  username        String       @unique
+  rating          Float        @default(0.0)
+  reviews         Review[]
+  orders          Order[]
+  schedule        String[]     // Horario laboral
+  email           String       @unique
+  password        String
+  createdAt   DateTime @default(now())
+  isActive    Boolean  @default(true)
+  role        String   @default("deliveryPerson")
+}
+
+model ErrandService {
+  id              Int          @id @default(autoincrement())
+  name            String
+  email           String       @unique
+  password        String
+  rating          Float        @default(0.0)
+  reviews         Review[]
+  affiliatedTo    Restaurant?  @relation(fields: [restaurantId], references: [id])
+  restaurantId    Int?
+  orders          Order[]
+  createdAt   DateTime @default(now())
+  isActive    Boolean  @default(true)
+  role        String   @default("errandService")
+
+}

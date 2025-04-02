@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import { Controller, Get } from '@nestjs/common';
 import { PrismaService } from './prisma.service';
 
@@ -7,11 +8,6 @@ export class AppController {
 
   @Get()
   getHello(): string {
-    return '¡NestJS + Prisma funcionando!';
-  }
-
-  @Get('users')
-  async getUsers() {
-    return this.prisma.user.findMany(); // Obtiene todos los usuarios de la DB
+    return 'Backend de Adomicilio.site!, solo personal autorizado debe ingresar 👮🏾👮🏾👮🏾🚨🚨🚔🚔🚔'; // Mensaje de bienvenida
   }
 }
