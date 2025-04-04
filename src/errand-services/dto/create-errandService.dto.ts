@@ -5,4 +5,5 @@ export class CreateErrandServiceDto {
     password: string;
     rating?: number = 0.0; // Optional, default is 0.0
     restaurantId?: number; // Optional, for affiliation with a restaurant
+    isActive?: boolean = true; // Optional, default is true
 }

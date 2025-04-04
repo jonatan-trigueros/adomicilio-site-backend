@@ -9,4 +9,5 @@ export class CreateReservationDto {
     area?: string; // Interior, terraza, etc.
     specialRequests?: string;
     guests?: string[]; // Lista de invitados
+    isActive?: boolean; // Reflecting the isActive field from the Prisma model
 }

@@ -1,11 +1,8 @@
 /* eslint-disable prettier/prettier */
-import { IsEmail, IsOptional, IsString, IsBoolean, IsArray, IsNumber } from 'class-validator';
+import { IsString, IsOptional, IsEmail, IsBoolean, IsNumber, Min, Max } from 'class-validator';
 
-export class UpdateDeliveryPersonDto {
-    @IsOptional()
-    @IsString()
-    username?: string;
 
+export class UpdateErrandServiceDto {
     @IsOptional()
     @IsString()
     name?: string;
@@ -19,12 +16,9 @@ export class UpdateDeliveryPersonDto {
     password?: string;
 
     @IsOptional()
-    @IsArray()
-    @IsString({ each: true })
-    schedule?: string[];
-
-    @IsOptional()
     @IsNumber()
+    @Min(0)
+    @Max(5)
     rating?: number;
 
     @IsOptional()
@@ -34,8 +28,4 @@ export class UpdateDeliveryPersonDto {
     @IsOptional()
     @IsString()
     role?: string;
-
-    @IsOptional()
-    @IsNumber()
-    restaurantId?: number;
 }
