@@ -1,11 +1,13 @@
 /* eslint-disable prettier/prettier */
 import { Controller, Post, Body, BadRequestException } from '@nestjs/common';
 import { AuthService } from './auth.service';
+import { Public } from './decorators/public.decorator'; // Decorador para rutas públicas
 
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
 
+  @Public() //Ruta sin autenticación
   @Post('login')
   async login(@Body() body: { email: string; password: string; role: string }) {
     const { email, password, role } = body;
@@ -39,6 +41,7 @@ export class AuthController {
     return this.authService[`login${role.charAt(0).toUpperCase() + role.slice(1)}`](user);
   }
 
+  @Public() // ✅ Ruta sin autenticación
   @Post('register')
   async register(
     @Body()
